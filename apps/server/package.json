@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "@apollo/server": "^4.7.5",
+    "@apollo/server": "^4.9.3",
     "graphql": "^16.7.1",
     "shortid": "2.2.16",
     "typescript-lru-cache": "^2.0.0"
