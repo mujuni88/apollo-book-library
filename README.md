@@ -11,7 +11,7 @@ This sample demonstrates a basic book library application using Apollo Client an
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [What's Inside?](#whats-inside)
-    - [Utilities](#utilities)
+  - [Tech Stack](#tech-stack)
   - [Build](#build)
 
 ## Getting Started
@@ -26,19 +26,25 @@ To use this example, follow these steps:
 
 This Turborepo includes the following packages/apps:
 
-- `client`: The UI for the library app lives here.
-- `server`: The Apollo server lives here.
-- `eslint-config-custom`: Contains `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`).
-- `tsconfig`: Contains `tsconfig.json`s used throughout the monorepo.
+- `app/client`: The UI for the library app lives here.
+- `app/server`: The Apollo server lives here.
+- `packages/eslint-config-custom`: Contains `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`).
+- `packages/tsconfig`: Contains `tsconfig.json`s used throughout the monorepo.
 
 
-### Utilities
+## Tech Stack
 
-This Turborepo has some additional tools already setup for you:
+This app uses:
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking.
-- [ESLint](https://eslint.org/) for code linting.
-- [Prettier](https://prettier.io) for code formatting.
+- [React](https://reactjs.org/): UI
+- [Apollo Client](https://www.apollographql.com/docs/react/): Data management
+- [Tailwind CSS](https://tailwindcss.com/): Styling
+- [NextUI](https://nextui.org/): UI components
+- [Apollo Server](https://www.apollographql.com/docs/apollo-server/): GraphQL server
+- [LRU Cache](https://www.npmjs.com/package/typescript-lru-cache): Caching
+
+All in [TypeScript](https://www.typescriptlang.org/).
+
 
 
 ## Build
