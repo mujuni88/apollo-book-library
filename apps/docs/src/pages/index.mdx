@@ -1,3 +1,46 @@
-# Welcome to Nextra
- 
-Hello, world!
+# Apollo Book Library
+
+This sample demonstrates a basic book library application using Apollo Client and Turborepo.
+
+![Hello](/app.png)
+
+## Getting Started
+
+To use this example, follow these steps:
+
+1. Clone the repository
+2. Install the dependencies with `bun install`
+3. Start the development server with `bun dev`
+
+## What's Inside?
+
+This Turborepo includes the following packages/apps:
+
+- `app/client`: The UI for the library app lives here.
+- `app/server`: The Apollo server lives here.
+- `packages/eslint-config-custom`: Contains `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`).
+- `packages/tsconfig`: Contains `tsconfig.json`s used throughout the monorepo.
+
+
+## Tech Stack
+
+This app uses:
+
+- [React](https://reactjs.org/): UI
+- [Apollo Client](https://www.apollographql.com/docs/react/): Data management
+- [Tailwind CSS](https://tailwindcss.com/): Styling
+- [NextUI](https://nextui.org/): UI components
+- [Apollo Server](https://www.apollographql.com/docs/apollo-server/): GraphQL server
+- [LRU Cache](https://www.npmjs.com/package/typescript-lru-cache): Caching
+
+All in [TypeScript](https://www.typescriptlang.org/).
+
+
+
+## Build
+
+To build all apps and packages, run the following command:
+
+```
+bun build
+```

@@ -2,7 +2,7 @@
 
 This sample demonstrates a basic book library application using Apollo Client and Turborepo.
 
-<img alt="My Library" src='./assets/app.png'>
+<img alt="My Library" src='./assets/app.png' /> 
 
 
 ## Table of Contents

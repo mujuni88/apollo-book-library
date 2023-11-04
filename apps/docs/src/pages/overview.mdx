@@ -1,0 +1,555 @@
+# Context
+
+This sheet covers the most common use cases for managing Cache in Apollo Client, using a book library app as an example.
+
+## Schema
+
+Example of the GraphQL schema, detailing book, categories, queries, mutations, and filters.
+
+```graphql
+type Category {
+  id: String!
+  name: String!
+}
+
+type Book {
+  id: String!
+  title: String!
+  categories: [Category]
+}
+
+type Query {
+  books(filter: BookFilter): [Book]
+  book(id: String!): Book
+  categories: [Category]
+  category(id: String!): Category
+}
+
+type Mutation {
+  addBook(title: String!, categories: [CategoryInput]): Book
+  updateBook(id: String!, title: String!, categories: [CategoryInput]): Book
+  deleteBook(id: String!): Boolean
+
+  addCategory(name: String!): Category
+  updateCategory(id: String!, name: String!): Category
+  deleteCategory(id: String!): Boolean
+  ...
+}
+```
+
+## How Apollo Caches Requests
+
+### Setting Up The Cache
+
+Initialize Apollo client with `InMemoryCache`.
+
+```graphql
+import { ApolloClient, InMemoryCache } from "@apollo/client";
+
+const client = new ApolloClient({
+  uri: "https://your-api-endpoint.com",
+  cache: new InMemoryCache()
+});
+```
+
+### Querying With Apollo
+
+**First-time Queries**
+
+The first time you query an item (e.g., a book), Apollo does not yet have data cached. It will make a network request to fetch the data. After obtaining the data, Apollo will store it in the cache before returning it to the client.
+
+![Diagram showing how Apollo handles first time queries and how it caches responses ](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/0d2a315a-d6cf-42e0-85a2-377287daefe4/Excalidraw.png)
+
+Diagram showing how Apollo handles first time queries and how it caches responses 
+
+****Subsequent Queries****
+
+For any subsequent requests for that data, Apollo checks the cache. If the data is found (a cache hit), Apollo will return it directly without contacting the server. This process conserves network resources and speeds up data retrieval.
+
+![Diagram showing how apollo handles subsequent queries of the same type](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/fef53688-8e94-4bca-bb65-41b9c8cbd0a9/Excalidraw.png)
+
+Diagram showing how apollo handles subsequent queries of the same type
+
+## Viewing Cache
+
+1. Using Browser Console
+    
+    Run `window.__APOLLO_CLIENT__.cache.extract()`
+    
+2. Apollo Client Devtools
+    
+    For a more visual and interactive approach, [download Apollo Client Devtools](https://www.apollographql.com/docs/react/development-testing/developer-tooling/#apollo-client-devtools)
+    
+
+### Cache Normalization:
+
+Cache normalization ensures data is stored consistently within the Apollo cache. It's like organizing your books on a shelf, so you don’t place multiple copies of the same book. Instead, you reference it from multiple places.
+
+**Benefits:**
+
+- **Performance**: Faster reads and writes.
+- **Efficiency**: Reduces cache size by avoiding data duplication.
+
+**How Apollo Identifies Cached Items**
+
+Apollo generates unique cache identifies using the pattern `<__typename>:<id>`. This means if there's a `Book` with an id of `harry-potter`, it's stored as `"Book:harry-potter"` in the cache.
+
+**Example Cache Structure**
+
+```graphql
+{
+    "ROOT_QUERY": {
+        "__typename": "Query",
+        "books": [
+            {
+                "__ref": "Book:harry-potter"
+            },
+            {
+                "__ref": "Book:lord-of-the-rings"
+            }
+        ]
+    },
+    "Book:harry-potter": {
+        "__typename": "Book",
+        "id": "harry-potter",
+        "title": "Harry Potter"
+    },
+    "Book:lord-of-the-rings": {
+        "__typename": "Book",
+        "id": "lord-of-the-rings",
+        "title": "Lord Of The Rings"
+    },
+}
+```
+
+In this example, the `books` array in the `ROOT_QUERY` doesn't store the book objects directly. Instead, it uses references (`__ref`) pointing to the actual book data stored elsewhere in the cache
+
+## Automatic Caching
+
+Apollo automatically updates the cache for you, provided the mutation response includes the `id` ****and the **values** of the modified entity.
+
+## Manual Cache Updates
+
+There are instances where you may need to manually intervene:
+
+- When a mutation affects multiple entities.
+- When a mutation results in the creation of new entities.
+- When entities are deleted by a mutation.
+
+### Opting Out of Manual Cache Updates
+
+You can sidestep manual updates by using `refetchQueries`. This re-fetches the data from your server automatically when you make a change. It's simpler because you don't have to tell the cache what changed manually—Apollo will do it for you.
+
+**Trade-Offs**
+
+- **Pros**: It's simpler. You avoid the complexity of manually telling the cache what has changed.
+- **Cons**: It can be less efficient. Because you're making extra network requests to refetch data, it could slow down your app or consume more data.
+
+Here's how it looks in code:
+
+```js
+const [addBook] = useMutation(ADD_BOOK_MUTATION, {
+    refetchQueries: [{ query: YOUR_BOOKS_QUERY }],
+});
+```
+
+## Examples Of Manual Cache Updates
+
+## Adding Items to the Cache
+
+*Suppose a user adds a new book to their library. You would need to update the books query to ensure the new book is displayed.*
+
+### Method 1: Using `writeQuery` or `updateQuery`
+
+**Traditional Approach: Using `readQuery` and `writeQuery`**
+
+Here, we first read the cached data using `readQuery`, modify it, and then write back the updated data using `writeQuery`.
+
+```js
+const [addBook] = useMutation(
+    ADD_BOOK,
+    {
+      update(cache, { data: { addBook } }) {
+        const { books } = cache.readQuery({ query: GET_BOOKS });
+        cache.writeQuery({
+          query: GET_BOOKS,
+          data: { books: books.concat([addBook]) },
+        });
+      }
+    }
+);
+
+```
+
+**Efficient Approach: Using `updateQuery`**
+
+`updateQuery` provides a direct method to fetch, modify, and update the cache in one go.
+
+```js
+const [addBook] = useMutation(
+    ADD_BOOK,
+    {
+      update(cache, { data: { addBook } }) {
+        const query = GET_BOOKS;
+        cache.updateQuery({query}, (data) => ({
+          books: [...data.books, addBook]
+        }));
+      }
+    }
+);
+
+```
+
+### Method 2. Using `cache.modify`:
+
+The `cache.modify` method is an alternative and direct way to update the cache. It’s more precise and allows for in-place modifications.
+
+**Traditional Approach: Using `writeFragment`**
+
+`writeFragment` lets you write an object directly to the cache. After this, you'll get a reference to that object, which you can then use to update your list of books.
+
+```js
+const [mutate] = useMutation(
+    ADD_BOOK,
+    {
+      update (cache, { data }) {
+        const newBook = data?.addBook;
+     
+        cache.modify({
+					fields: {
+						books(prevBooks, {toReference}){
+							const newBookRef = cache.writeFragment({
+                    data: newBook,
+                    fragment: gql`
+                        fragment NewBook on Book {
+                            id
+                            title
+                        }
+                    `
+                });
+							return [...prevBooks, newBookRef]
+						}
+					}
+				});
+      }
+    }
+  )
+```
+
+**Simpler Approach with `toReference`**
+
+If the data you want to add to the cache already exists there, you can skip **`writeFragment`** and just reference the object directly.
+
+```js
+const [mutate] = useMutation(
+    ADD_BOOK,
+    {
+      update (cache, { data }) {
+        const newBook = data?.addBook;
+     
+        cache.modify({
+					fields: {
+						books(prevBooks, {toReference}){
+							return [...prevBooks, toReference(newBook)]
+						}
+					}
+				});
+      }
+    }
+  )
+```
+
+**Understanding `toReference` vs `writeFragment`:**
+
+- `toReference`: This function simply gets a reference to an object that's already in the cache. This is possible because any result from a mutation or query first lands in the cache before it's sent to the client.
+- `writeFragment`: If the object doesn't exist in the cache, or if you need to make specific modifications, `writeFragment` lets you write (or overwrite) it in the cache directly and then gives you its reference.
+
+## Modifying Single Entity
+
+*Suppose we want to remove the “FICTION” category in our books app. We’d then need to remove that category in all fiction books eg “Book:harry-potter”*
+
+Executing a mutation
+
+```js
+const { data } = await deleteCategory({
+        variables: {
+          categoryName: "FICTION"
+        },
+      });
+```
+
+### Method 1: Leveraging `writeQuery` or `updateQuery`
+
+**Traditional Approach: Using `readQuery` and `writeQuery`**
+
+Here, we first read the cached data using `readQuery`, modify it, and then write back the updated data using `writeQuery`.
+
+```js
+const [deleteCategory] = useMutation(DELETE_CATEGORY_MUTATION, {
+    update: (cache, { data }) => {
+      if (data.deleteCategory.success) {
+        const { book } = cache.readQuery({
+          query: YOUR_BOOK_QUERY,
+          variables: { id: "harry-potter" }, 
+        });
+
+        if (book) {
+          const updatedCategories = book.categories.filter(category => category !== "FICTION");
+          
+          cache.writeQuery({
+            query: YOUR_BOOK_QUERY,
+            variables: { id: "harry-potter" }, 
+            data: {
+              book: {
+                ...book,
+                categories: updatedCategories,
+              },
+            },
+          });
+        }
+      }
+    },
+  });
+```
+
+**Efficient Approach: Using `updateQuery`**
+
+`updateQuery` provides a direct method to fetch, modify, and update the cache in one go.
+
+```js
+const [deleteCategory] = useMutation(DELETE_CATEGORY_MUTATION, {
+    update: (cache, { data }) => {
+      if (data.deleteCategory.success) {
+        cache.updateQuery({
+          query: YOUR_BOOK_QUERY,
+          variables: { id: "harry-potter" },
+        }, (cachedData) => {
+          // Modify the cachedData to remove the "FICTION" category
+          const updatedData = {
+            ...cachedData,
+            book: {
+              ...cachedData.book,
+              categories: cachedData.book.categories.filter(category => category !== "FICTION"),
+            },
+          };
+          return updatedData;
+        });
+      }
+    },
+  });
+```
+
+### Method 2. Using `cache.modify`:
+
+The `cache.modify` method is an alternative and direct way to update the cache. It’s more precise and allows for in-place modifications.
+
+```js
+const [deleteCategory] = useMutation(DELETE_CATEGORY_MUTATION, {
+    update: (cache, { data }) => {
+      if (data.deleteCategory.success) {
+        cache.modify({
+          id: 'Book:harry-potter',
+          fields: {
+            categories: (previousCategories) => {
+              return previousCategories.filter(category => category !== "FICTION");
+            }
+          }
+        });
+      }
+    },
+  });
+```
+
+## Handling Parameterized Queries
+
+Parameterized queries, often used for filters, sorts, or pagination, can pose challenges when updating the cache. The key lies in effectively parsing the `storeFieldName` provided in the field function.
+
+*Let's assume you executed the following queries to filter books by category:*
+
+```js
+getBooks(category: 'FICTION')
+getBooks(category: 'BIOGRAPHY')
+```
+
+The cache will look like the following:
+
+```js
+{
+    "ROOT_QUERY": {
+        "__typename": "Query",
+        "books({\"filter\":{\"category\":\"FICTION\"}})": [
+            { "__ref": "Book:harry-potter" },
+        ],
+        "books({\"filter\":{\"category\":\"BIOGRAPHY\"}})": [
+            { "__ref": "Book:steve-jobs" },
+        ]
+    }
+}
+```
+
+**Common Mistake**
+
+Suppose you add a new book titled "Benjamin Franklin" under the category "BIOGRAPHY":
+
+```js
+addBook({
+ variables: { title:"Benjamin Franklin", category: "BIOGRAPHY"}
+},
+update: (cache, {data}) => {
+    cache.modify({
+        fields: {
+            books: (previous, { toReference }) => (
+                [...previous, toReference(data.addBook)]
+            )
+        }
+    });
+}
+})
+```
+
+What you'd expect is to see the book added under "BIOGRAPHY". However, inspecting the cache reveals:
+
+```js
+{
+    "ROOT_QUERY": {
+        "__typename": "Query",
+        "books({\"filter\":{\"category\":\"FICTION\"}})": [
+            { "__ref": "Book:harry-potter" },
+            { "__ref": "Book:benjamin-franklin" }, // NEW ENTRY
+
+        ],
+        "books({\"filter\":{\"category\":\"BIOGRAPHY\"}})": [
+            { "__ref": "Book:steve-jobs" },
+            { "__ref": "Book:benjamin-franklin" }, // NEW ENTRY DUPLICATED
+        ]
+    }
+	}
+}
+```
+
+**The Problem**
+
+Notice the issue? "Benjamin Franklin" has been added to both the "FICTION" and "BIOGRAPHY" categories. We wanted it to be only in the "BIOGRAPHY" category.
+
+This happened because our cache modification didn't specify the category, causing the new book to be added to all existing categories.
+
+****The Correct Approach****
+
+Parse the `storeFieldName` that the method provides in your field function. You can use the following utility function:
+
+```js
+function getParamsFromStoreFieldName(storeFieldName) {
+  // Find the start and end indices of the JSON parameters.
+  const start = storeFieldName.indexOf('{');
+  const end = storeFieldName.lastIndexOf('}');
+
+  // If no JSON parameters were found, return null.
+  if (start === -1 || end === -1) {
+    return null;
+  }
+
+  // Extract the JSON parameters.
+  const params = storeFieldName.slice(start, end + 1);
+
+  // Parse the JSON parameters.
+  try {
+    return JSON.parse(params);
+  } catch (error) {
+    console.error(`Failed to parse parameters from storeFieldName: ${error.message}`);
+    return null;
+  }
+}
+```
+
+**Usage**:
+By leveraging `getParamsFromStoreFieldName`, we can efficiently determine where to add our book.
+
+```js
+const [addBook, { data }] = useMutation(ADD_BOOK, {
+    update(cache, { data: { addBook } }) {
+      cache.modify({
+        fields: {
+          books(previous, { toReference, storeFieldName }) {
+            // storeFieldName = books({"filter":{"category": "BIOGRAPHY"}})
+            const params = getParamsFromStoreFieldName(storeFieldName);
+
+            if (params?.filter?.category) {
+              const category = params.filter.category;
+
+              if (category === addBook.category) {
+                return [...previous, toReference(addBook)];
+              }
+            } else {
+              // If no filter is applied or the filter is not based on category, just append the new book
+              return [...previous, toReference(addBook)];
+            }
+
+            return previous;
+          }
+        }
+      });
+    }
+});
+```
+
+## Deleting Cache Items
+
+When you want to remove items from Apollo's cache, it is important to remove any unreferenced objects.
+
+### 1. Use `cache.modify` to Update Cache:
+
+First, you modify the cache to reflect the deletion. In this case, when a book is deleted, you'd want to filter it out from the list of books.
+
+```js
+Cjsopy code
+cache.modify({
+  fields: {
+    books(existingBooks, { readField }) {
+      return existingBooks.filter(
+        (bookRef) => readField('id', bookRef) !== data.deleteBook.id
+      );
+    },
+  },
+});
+
+```
+
+### 2. Clean Up with `cache.evict` and `cache.gc`: "Hello"
+
+After making changes to your cache, it's essential to clean it up. Here's what each method does:
+
+- `cache.evict`: Removes a specific object from the cache.
+- `cache.gc`: Cleans up and removes any unreachable objects in the cache.
+
+```js
+cache.evict({ id: cache.identify(data.deleteBook) });
+cache.gc();
+```
+
+### Putting It All Together:** "Hello"
+
+Now, let's combine these steps in the context of a mutation where a book is being deleted:
+
+```js
+const [deleteBook] = useMutation(DELETE_BOOK_MUTATION, {
+  update(cache, { data }) {
+    if (data.deleteBook) {
+      // Step 1: Update the cache
+      cache.modify({
+        fields: {
+          books(existingBooks, { readField }) {
+            return existingBooks.filter(
+              (bookRef) => readField('id', bookRef) !== data.deleteBook.id
+            );
+          },
+        },
+      });
+
+      // Step 2: Clean up the cache
+      cache.evict({ id: cache.identify(data.deleteBook) });
+      cache.gc();
+    }
+  },
+});
+
+```
