@@ -3,6 +3,8 @@ import { Category } from "../../lib/utils";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { useDeleteCategory } from "../../hooks/categories/useDeleteCategory";
 import { useUpdateCategory } from "../../hooks/categories/useUpdateCategory";
+import { Link } from "@heroui/react";
+import { CategoryChip } from "./CategoryChip";
 
 export const CategoryItem: React.FC<Category> = ({ id, name }) => {
   const [edit, setEdit] = useState(false);
@@ -28,10 +30,10 @@ export const CategoryInfo: React.FC<Category & { onEdit: () => void }> = ({
 
   return (
     <form
-      className="grid grid-cols-2 gap-2 items-center"
+      className="grid grid-cols-[auto_1fr] items-center"
       onSubmit={handleDelete}
     >
-      <p className="text-bold truncate">{name}</p>
+      <CategoryChip category={{ id, name }} />
       <div className="gap-1 flex flex-end items-center justify-end">
         <button
           type="button"

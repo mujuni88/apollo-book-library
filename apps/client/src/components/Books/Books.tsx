@@ -9,15 +9,14 @@ export function Books() {
   const { categories, loading: loadingCategories } = useGetCategories();
   const { books, loading, error, refetch } = useGetBooks();
   const isEmpty = !books.length && !loading && !error;
-  const [selectedKeys, setSelectedKeys] = useState(() => new Set<string>([]));
+  const [selectedFilterCategoryId, setSelectedFilterCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
-    refetch({
-      filter: {
-        categoryIds: Array.from(selectedKeys).filter(Boolean),
-      },
-    });
-  }, [selectedKeys]);
+    const filter = selectedFilterCategoryId 
+      ? { categoryIds: [selectedFilterCategoryId] } 
+      : null;
+    refetch({ filter });
+  }, [selectedFilterCategoryId, refetch]);
 
   return (
     <div>
@@ -26,10 +25,11 @@ export function Books() {
         <div className="grid grid-cols-[1fr_1fr] items-center gap-5 border-b-2 border-black-500 pb-5 mb-5">
           <h2 className="text-2xl">Books</h2>
           <CategoryDropdown
-            placeholder="Filter by categories"
+            placeholder="Filter by category"
             categories={categories}
-            selectedCategories={selectedKeys}
-            onCategoryChange={setSelectedKeys}
+            selectedCategory={selectedFilterCategoryId}
+            onCategoryChange={setSelectedFilterCategoryId}
+            className="w-full"
           />
         </div>
         {isEmpty ? (

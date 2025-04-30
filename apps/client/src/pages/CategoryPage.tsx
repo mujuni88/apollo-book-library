@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useGetCategory } from '../hooks/categories/useGetCategory';
 import { useGetBooks } from '../hooks/books/useGetBooks';
 import { BookItem } from '../components/Books/BookItem/BookItem'; 
+import { ArrowLeftIcon } from '@heroicons/react/24/solid'; // Import icon
 
 export const CategoryPage: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -27,21 +28,34 @@ export const CategoryPage: React.FC = () => {
 
   if (isLoading) return <p className="text-center mt-8">Loading category details...</p>;
   if (error) return <p className="text-center mt-8 text-red-600">Error loading data: {error.message}</p>;
-  if (!category) return <p className="text-center mt-8">Category not found.</p>;
+  if (!category) return <p className="text-center mt-8 text-gray-500">Category not found.</p>;
 
   return (
-    <div className="container mx-auto p-4">
-      <Link to="/" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Back to Library</Link>
+    <div className="container mx-auto p-4 md:p-8">
+       <Link 
+        to="/" 
+        className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors mb-6 group"
+      >
+        <ArrowLeftIcon className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
+        Back to Library
+      </Link>
 
-      <h1 className="text-3xl font-bold mb-6">Books in Category: {category.name}</h1>
+      <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-8">
+        Books in <span className="text-purple-600 dark:text-purple-400">{category.name}</span>
+      </h1>
 
       {books.length === 0 ? (
-        <p>No books found in this category.</p>
+        <p className="text-center mt-12 text-gray-500 dark:text-gray-400 italic">No books found in this category.</p>
       ) : (
-        <div className="space-y-2">
-          {books.map((book) => (
-            <BookItem key={book.id} {...book} />
-          ))}
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 md:p-6">
+          <div className="space-y-3">
+            {books.map((book) => (
+              // Add padding-top to all but the first item for spacing with divide-y
+              <div key={book.id} className="pt-3 first:pt-0">
+                <BookItem {...book} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

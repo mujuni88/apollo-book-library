@@ -3,6 +3,7 @@ import React, { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Book } from "../../../lib/utils";
 import { useDeleteBook } from "../../../hooks/books/useDeleteBook";
+import { CategoryChip } from "../../Categories/CategoryChip";
 
 export const BookInfo: React.FC<Book & { onEdit: () => void }> = ({
   id,
@@ -27,13 +28,7 @@ export const BookInfo: React.FC<Book & { onEdit: () => void }> = ({
       <div className="text-bold flex flex-wrap gap-1 items-center">
         {categories && categories.length > 0 ? (
           categories.map((category) => (
-            <Link 
-              key={category.id}
-              to={`/categories/${category.id}`}
-              className="px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors"
-            >
-              {category.name}
-            </Link>
+            <CategoryChip key={category.id} category={category} />
           ))
         ) : (
           <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">

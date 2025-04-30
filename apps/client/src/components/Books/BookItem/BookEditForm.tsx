@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from "react";
-import { Book } from "../../../lib/utils";
+import { Book, Category } from "../../../lib/utils";
 import { useGetCategories } from "../../../hooks/categories/useGetCategories";
 import { useUpdateBook } from "../../../hooks/books/useUpdateBook";
 import { CategoryDropdown } from "../../CategoryDropdown";
@@ -13,16 +13,16 @@ export const BookEditForm: React.FC<Book & { onFinish: () => void }> = ({
   const [title, setTitle] = useState(_title);
   const { categories, loading } = useGetCategories();
   const { updateBook } = useUpdateBook();
-  const [selectedKeys, setSelectedKeys] = useState(
-    () => new Set<string>((_categories ?? []).map((c) => c.id)),
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    () => _categories?.[0]?.id ?? null
   );
-  const selectedCategories = categories
-    .filter((c) => selectedKeys.has(c.id))
-    .map(({ id, name }) => ({ id, name }));
+  
+  const selectedCategoryObject = categories?.find(c => c.id === selectedCategoryId);
+  const categoriesForMutation = selectedCategoryObject ? [{ id: selectedCategoryObject.id, name: selectedCategoryObject.name }] : [];
 
   const handleUpdate = async (e: FormEvent) => {
     e.preventDefault();
-    await updateBook({ id, title, categories: selectedCategories });
+    await updateBook({ id, title, categories: categoriesForMutation });
     onFinish();
   };
 
@@ -44,11 +44,10 @@ export const BookEditForm: React.FC<Book & { onFinish: () => void }> = ({
         />
       </div>
       <CategoryDropdown
-        // label="Categories"
-        placeholder="Select categories"
+        placeholder="Select category"
         categories={categories}
-        selectedCategories={selectedKeys}
-        onCategoryChange={setSelectedKeys}
+        selectedCategory={selectedCategoryId}
+        onCategoryChange={setSelectedCategoryId}
       />
       <div className="space-x-2 grid grid-cols-2">
         <button
@@ -63,7 +62,7 @@ export const BookEditForm: React.FC<Book & { onFinish: () => void }> = ({
           onClick={() => {
             onFinish();
             setTitle(_title);
-            setSelectedKeys(new Set<string>((_categories ?? []).map((c) => c.id)));
+            setSelectedCategoryId(_categories?.[0]?.id ?? null);
           }}
           disabled={loading}
           className="px-4 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"

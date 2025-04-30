@@ -7,10 +7,13 @@ export function AddBook() {
   const [title, setTitle] = useState("");
   const { categories, loading } = useGetCategories();
   const { addBook } = useAddBook();
-  const [selectedKeys, setSelectedKeys] = useState(() => new Set<string>([]));
-  const selectedCategories = categories
-    .filter((c) => selectedKeys.has(c.id))
-    .map(({ id, name }) => ({ id, name }));
+  // State for single category ID, initialized to null
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  
+  // Find the selected category object
+  const selectedCategoryObject = categories.find(c => c.id === selectedCategoryId);
+  // Prepare categories for mutation/optimistic response
+  const categoriesPayload = selectedCategoryObject ? [{ id: selectedCategoryObject.id, name: selectedCategoryObject.name }] : [];
 
   return (
     <div>
@@ -19,18 +22,21 @@ export function AddBook() {
         onSubmit={(e) => {
           e.preventDefault();
           addBook({
-            variables: { title, categories: selectedCategories },
+            // Use the prepared payload
+            variables: { title, categories: categoriesPayload }, 
             optimisticResponse: {
               addBook: {
                 id: "temp-id",
                 __typename: "Book",
                 title,
-                categories: selectedCategories,
+                // Use the prepared payload
+                categories: categoriesPayload, 
               },
             },
           });
           setTitle("");
-          setSelectedKeys(new Set<string>());
+          // Reset single category ID state to null
+          setSelectedCategoryId(null); 
         }}
       >
         <div className="relative">
@@ -47,10 +53,10 @@ export function AddBook() {
         </div>
         <CategoryDropdown
           // label="Categories" // Temporarily removed
-          placeholder="Select categories"
+          placeholder="Select category" // Updated placeholder
           categories={categories}
-          selectedCategories={selectedKeys}
-          onCategoryChange={setSelectedKeys}
+          selectedCategory={selectedCategoryId} // Pass single ID state
+          onCategoryChange={setSelectedCategoryId} // Pass state setter directly
         />
         <button
           type="submit"
