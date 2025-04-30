@@ -8,7 +8,6 @@ export const client = new ApolloClient({
         fields: {
           book: {
             read(_, { args, toReference }) {
-              console.log('book', args, _);
               return toReference({
                 __typename: 'Book',
                 id: args?.id,
@@ -17,7 +16,6 @@ export const client = new ApolloClient({
           },
           category: {
             read(_, { args, toReference }) {
-              console.log('category', args, _);
               return toReference({
                 __typename: 'Category',
                 id: args?.id,
