@@ -1,6 +1,7 @@
 import { useGetCategories } from "../../hooks/categories/useGetCategories";
 import { AddCategory } from "./AddCategory";
 import { CategoryItem } from "./CategoryItem";
+import { Spinner, Alert } from "@heroui/react";
 
 export function Categories() {
   const { categories, loading, error } = useGetCategories();
@@ -14,7 +15,13 @@ export function Categories() {
       <div className="p-4">
         <AddCategory />
         {isEmpty && (
-          <p className="text-center my-5 text-zinc-400">No categories found</p>
+          <Alert variant="flat" color="primary" className="my-5">No categories found</Alert>
+        )}
+        {loading && <Spinner className="mx-auto my-5" />}
+        {error && (
+          <Alert variant="solid" color="danger" className="my-5">
+            Error loading categories: {error.message}
+          </Alert>
         )}
         <ul className="mt-10 p-5 flex flex-col gap-3">
           {categories.map((c) => (

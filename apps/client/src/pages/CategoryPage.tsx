@@ -4,7 +4,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useGetCategory } from '../hooks/categories/useGetCategory';
 import { useGetBooks } from '../hooks/books/useGetBooks';
 import { BookItem } from '../components/Books/BookItem/BookItem'; 
-import { ArrowLeftIcon } from '@heroicons/react/24/solid'; // Import icon
+import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import { Spinner, Alert } from '@heroui/react';
 
 export const CategoryPage: React.FC = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -23,12 +24,12 @@ export const CategoryPage: React.FC = () => {
   const error = errorCategory || errorBooks;
 
   if (!categoryId) {
-    return <p className="text-center mt-8 text-red-600">No Category ID provided in URL.</p>;
+    return <Alert variant="flat" color="warning" className="max-w-md mx-auto mt-8">No Category ID provided in URL.</Alert>;
   }
 
-  if (isLoading) return <p className="text-center mt-8">Loading category details...</p>;
-  if (error) return <p className="text-center mt-8 text-red-600">Error loading data: {error.message}</p>;
-  if (!category) return <p className="text-center mt-8 text-gray-500">Category not found.</p>;
+  if (isLoading) return <Spinner className="mx-auto mt-8" />;
+  if (error) return <Alert variant="solid" color="danger" className="max-w-md mx-auto mt-8">Error loading data: {error.message}</Alert>;
+  if (!category) return <Alert variant="flat" color="secondary" className="max-w-md mx-auto mt-8">Category not found.</Alert>;
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -45,7 +46,7 @@ export const CategoryPage: React.FC = () => {
       </h1>
 
       {books.length === 0 ? (
-        <p className="text-center mt-12 text-gray-500 dark:text-gray-400 italic">No books found in this category.</p>
+        <Alert variant="flat" color="primary" className="max-w-md mx-auto mt-8">No books found in this category.</Alert>
       ) : (
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 md:p-6">
           <div className="space-y-3">

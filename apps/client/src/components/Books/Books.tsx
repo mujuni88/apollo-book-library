@@ -1,8 +1,9 @@
-import { BookItem } from "./BookItem";
+import { BookItem } from "./BookItem/BookItem";
 import { useGetBooks } from "../../hooks/books/useGetBooks";
 import { AddBook } from "./AddBook";
 import { CategoryDropdown } from "../CategoryDropdown";
 import { useGetCategories } from "../../hooks/categories/useGetCategories";
+import { Spinner, Alert } from "@heroui/react";
 import { useEffect, useState } from "react";
 
 export function Books() {
@@ -33,13 +34,15 @@ export function Books() {
           />
         </div>
         {isEmpty ? (
-          <p className="text-center text-l text-stone-500">
+          <Alert variant="solid" color="primary" className="my-4">
             No Books found. Add Books
-          </p>
+          </Alert>
         ) : null}
-        {loading ? <p className="text-center">Loading...</p> : null}
+        {loading ? <Spinner className="mx-auto" /> : null}
         {error ? (
-          <p className="text-center text-red-300">Error loading books</p>
+          <Alert variant="solid" color="danger" className="my-4">
+            Error loading books: {error.message}
+          </Alert>
         ) : null}
         <ul className="w-full space-y-5">
           {books.map(({ id, title, categories }) => {

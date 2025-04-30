@@ -1,9 +1,9 @@
-// Placeholder for Book Detail Page
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGetBook } from '../hooks/books/useGetBook'; 
-import { CategoryChip } from '../components/Categories/CategoryChip'; // Import CategoryChip
-import { ArrowLeftIcon } from '@heroicons/react/24/solid'; // Import icon
+import { CategoryChip } from '../components/Categories/CategoryChip';
+import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import { Spinner, Alert } from '@heroui/react';
 
 export const BookDetailPage: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
@@ -11,12 +11,12 @@ export const BookDetailPage: React.FC = () => {
   const { book, loading, error } = useGetBook(bookId || '');
 
   if (!bookId) {
-      return <p className="text-center mt-8 text-gray-500">No book ID provided.</p>;
+      return <Alert variant="flat" color="warning" className="max-w-md mx-auto mt-8">No book ID provided.</Alert>;
   }
 
-  if (loading) return <p className="text-center mt-8">Loading book details...</p>;
-  if (error) return <p className="text-center mt-8 text-red-600">Error loading book: {error.message}</p>;
-  if (!book) return <p className="text-center mt-8 text-gray-500">Book not found.</p>;
+  if (loading) return <Spinner className="mx-auto mt-8" />;
+  if (error) return <Alert variant="solid" color="danger" className="max-w-md mx-auto mt-8">Error loading book: {error.message}</Alert>;
+  if (!book) return <Alert variant="flat" color="secondary" className="max-w-md mx-auto mt-8">Book not found.</Alert>;
 
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-3xl">
