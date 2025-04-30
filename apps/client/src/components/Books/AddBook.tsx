@@ -12,7 +12,7 @@ export function AddBook() {
   const categoriesPayload = selectedCategoryObject ? [{ id: selectedCategoryObject.id, name: selectedCategoryObject.name }] : [];
 
   return (
-    <div className="shadow-lg rounded-lg bg-white dark:bg-gray-800 p-6">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 p-6">
       <h2 className="text-xl font-semibold mb-8 text-gray-800 dark:text-white">Add A Book</h2>
       <form
         className="grid grid-cols-[1fr_1fr_auto] gap-3 items-center"
