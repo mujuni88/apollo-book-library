@@ -45,7 +45,7 @@ export const useSeedData = () => {
 
         cache.modify({
           fields: {
-            categories(existingCategories: Reference[], { toReference }) {
+            categories(existingCategories: readonly Reference[], { toReference }) {
               const newCategories = data.seedData.categories.map(
                 (c: Category) => toReference(c) as Reference,
               );
@@ -68,7 +68,7 @@ export const useSeedData = () => {
 
               return [...existingCategories, ...uniqueNewCategories];
             },
-            books(existingBooks: Reference[], { toReference }) {
+            books(existingBooks: readonly Reference[], { toReference }) {
               const newBooks = data.seedData.books.map(
                 (b: Book) => toReference(b) as Reference,
               ); // Note: Changed from categories to books

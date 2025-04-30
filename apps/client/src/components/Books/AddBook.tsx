@@ -1,4 +1,3 @@
-import { Button, Input } from "@nextui-org/react";
 import { useState } from "react";
 import { CategoryDropdown } from "../CategoryDropdown";
 import { useGetCategories } from "../../hooks/categories/useGetCategories";
@@ -34,23 +33,32 @@ export function AddBook() {
           setSelectedKeys(new Set<string>());
         }}
       >
-        <Input
-          isRequired
-          label="Title"
-          size="sm"
-          variant="underlined"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter book title"
-        />
+        <div className="relative">
+          <label htmlFor="book-title-add" className="block text-xs font-medium text-gray-500 dark:text-gray-400 absolute -top-4 left-0">Title</label>
+          <input
+            type="text"
+            id="book-title-add"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter book title"
+            className="w-full px-1 py-1 text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-indigo-500 dark:text-white"
+          />
+        </div>
         <CategoryDropdown
+          // label="Categories" // Temporarily removed
+          placeholder="Select categories"
           categories={categories}
           selectedCategories={selectedKeys}
           onCategoryChange={setSelectedKeys}
         />
-        <Button color="primary" type="submit" isLoading={loading}>
-          Add Book
-        </Button>
+        <button
+          type="submit"
+          disabled={!title || loading}
+          className="px-4 py-1.5 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed self-end"
+        >
+          {loading ? 'Adding...' : 'Add Book'}
+        </button>
       </form>
     </div>
   );

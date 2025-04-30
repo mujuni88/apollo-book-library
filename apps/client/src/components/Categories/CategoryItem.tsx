@@ -1,6 +1,5 @@
 import React, { useState, FormEvent } from "react";
 import { Category } from "../../lib/utils";
-import { Button, Input } from "@nextui-org/react";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { useDeleteCategory } from "../../hooks/categories/useDeleteCategory";
 import { useUpdateCategory } from "../../hooks/categories/useUpdateCategory";
@@ -32,27 +31,23 @@ export const CategoryInfo: React.FC<Category & { onEdit: () => void }> = ({
       className="grid grid-cols-2 gap-2 items-center"
       onSubmit={handleDelete}
     >
-      <p className="text-bold">{name}</p>
-      <div className="gap-3 flex flex-end items-center justify-end">
-        <Button
-          color={"default"}
+      <p className="text-bold truncate">{name}</p>
+      <div className="gap-1 flex flex-end items-center justify-end">
+        <button
+          type="button"
           onClick={onEdit}
           disabled={loading}
-          type="button"
-          isIconOnly
-          variant="light"
+          className="p-2 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <PencilIcon size={16} />
-        </Button>
-        <Button
-          color={"danger"}
-          disabled={loading}
+        </button>
+        <button
           type="submit"
-          isIconOnly
-          variant="light"
+          disabled={loading}
+          className="p-2 rounded text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <TrashIcon size={16} />
-        </Button>
+        </button>
       </div>
     </form>
   );
@@ -75,35 +70,39 @@ export const CategoryEditForm: React.FC<
       className="grid grid-cols-2 gap-2 items-center"
       onSubmit={handleUpdate}
     >
-      <Input
-        isRequired
-        label="Title"
-        size="sm"
-        variant="underlined"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter category name"
-      />
+      <div className="relative">
+        <label htmlFor={`category-name-${id}`} className="block text-xs font-medium text-gray-500 dark:text-gray-400 absolute -top-4 left-0">
+          Name
+        </label>
+        <input
+          type="text"
+          id={`category-name-${id}`}
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter category name"
+          className="w-full px-1 py-1 text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-indigo-500 dark:text-white"
+        />
+      </div>
       <div className="space-x-2 grid grid-cols-2">
-        <Button
+        <button
           type="submit"
-          isLoading={loading}
-          isDisabled={!name}
-          color="primary"
+          disabled={!name || loading}
+          className="px-4 py-1.5 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Update
-        </Button>
-        <Button
+          {loading ? 'Updating...' : 'Update'}
+        </button>
+        <button
           type="button"
-          color="default"
           onClick={() => {
             onFinish();
-            setName(name);
+            setName(_name);
           }}
-          isDisabled={loading}
+          disabled={loading}
+          className="px-4 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Cancel
-        </Button>
+        </button>
       </div>
     </form>
   );

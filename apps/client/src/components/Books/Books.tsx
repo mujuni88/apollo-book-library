@@ -26,10 +26,7 @@ export function Books() {
         <div className="grid grid-cols-[1fr_1fr] items-center gap-5 border-b-2 border-black-500 pb-5 mb-5">
           <h2 className="text-2xl">Books</h2>
           <CategoryDropdown
-            variant="flat"
-            label={"Filter"}
             placeholder="Filter by categories"
-            isLoading={loadingCategories}
             categories={categories}
             selectedCategories={selectedKeys}
             onCategoryChange={setSelectedKeys}

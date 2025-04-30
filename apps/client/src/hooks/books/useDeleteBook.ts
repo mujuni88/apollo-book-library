@@ -30,7 +30,7 @@ export const useDeleteBook = () => {
 
         cache.modify({
           fields: {
-            books(existingBooks: Reference[], { readField }) {
+            books(existingBooks: readonly Reference[], { readField }) {
               console.log("existingBooks", existingBooks);
               return existingBooks.filter(
                 (bookRef) => readField("id", bookRef) !== id,

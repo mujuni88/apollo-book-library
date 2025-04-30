@@ -3,7 +3,7 @@ import { Category } from "../../lib/utils";
 import { toast } from "sonner";
 
 const GET_CATEGORIES = gql`
-  {
+  query getCategories {
     categories {
       id
       name

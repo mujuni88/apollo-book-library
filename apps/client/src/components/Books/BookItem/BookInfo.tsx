@@ -1,6 +1,6 @@
-import { Button, Chip } from "@nextui-org/react";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import React, { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Book } from "../../../lib/utils";
 import { useDeleteBook } from "../../../hooks/books/useDeleteBook";
 
@@ -18,39 +18,49 @@ export const BookInfo: React.FC<Book & { onEdit: () => void }> = ({
   };
 
   return (
-    <form
-      className="grid grid-cols-3 gap-2 items-center"
-      onSubmit={handleDelete}
+    <div
+      className="grid grid-cols-3 gap-2 items-center py-2 border-b border-gray-200 dark:border-gray-700"
     >
-      <p className="text-bold">{title}</p>
-      <div className="text-bold flex flex-wrap gap-2 items-center">
-        {(categories ?? []).map((c) => (
-          <Chip key={c.id} color="primary" variant="faded">
-            {c.name}
-          </Chip>
-        ))}
+      <Link to={`/books/${id}`} className="text-blue-600 hover:underline font-medium truncate">
+        {title}
+      </Link>
+      <div className="text-bold flex flex-wrap gap-1 items-center">
+        {categories && categories.length > 0 ? (
+          categories.map((category) => (
+            <Link 
+              key={category.id}
+              to={`/categories/${category.id}`}
+              className="px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors"
+            >
+              {category.name}
+            </Link>
+          ))
+        ) : (
+          <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+            Uncategorized
+          </span>
+        )}
       </div>
-      <div className="gap-3 flex flex-end items-center justify-end">
-        <Button
-          color={"default"}
+      <div className="gap-1 flex flex-end items-center justify-end">
+        <button
+          type="button"
           onClick={onEdit}
           disabled={loading}
-          type="button"
-          isIconOnly
-          variant="light"
+          className="p-2 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label={`Edit ${title}`}
         >
           <PencilIcon size={16} />
-        </Button>
-        <Button
-          color={"danger"}
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
           disabled={loading}
-          type="submit"
-          isIconOnly
-          variant="light"
+          className="p-2 rounded text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label={`Delete ${title}`}
         >
           <TrashIcon size={16} />
-        </Button>
+        </button>
       </div>
-    </form>
+    </div>
   );
 };

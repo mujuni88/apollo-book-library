@@ -1,4 +1,3 @@
-import { Button, Input } from "@nextui-org/react";
 import React, { FormEvent, useState } from "react";
 import { Book } from "../../../lib/utils";
 import { useGetCategories } from "../../../hooks/categories/useGetCategories";
@@ -32,40 +31,45 @@ export const BookEditForm: React.FC<Book & { onFinish: () => void }> = ({
       className="grid grid-cols-3 gap-2 items-center"
       onSubmit={handleUpdate}
     >
-      <Input
-        isRequired
-        label="Title"
-        size="sm"
-        variant="underlined"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter book title"
-      />
+      <div className="relative">
+        <label htmlFor={`book-title-${id}`} className="block text-xs font-medium text-gray-500 dark:text-gray-400 absolute -top-4 left-0">Title</label>
+        <input
+          type="text"
+          id={`book-title-${id}`}
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter book title"
+          className="w-full px-1 py-1 text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-indigo-500 dark:text-white"
+        />
+      </div>
       <CategoryDropdown
+        // label="Categories"
+        placeholder="Select categories"
         categories={categories}
         selectedCategories={selectedKeys}
         onCategoryChange={setSelectedKeys}
       />
       <div className="space-x-2 grid grid-cols-2">
-        <Button
+        <button
           type="submit"
-          isLoading={loading}
-          isDisabled={!title}
-          color="primary"
+          disabled={!title || loading}
+          className="px-4 py-1.5 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Update
-        </Button>
-        <Button
+          {loading ? 'Updating...' : 'Update'}
+        </button>
+        <button
           type="button"
-          color="default"
           onClick={() => {
             onFinish();
-            setTitle(title);
+            setTitle(_title);
+            setSelectedKeys(new Set<string>((_categories ?? []).map((c) => c.id)));
           }}
-          isDisabled={loading}
+          disabled={loading}
+          className="px-4 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Cancel
-        </Button>
+        </button>
       </div>
     </form>
   );

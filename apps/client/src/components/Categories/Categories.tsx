@@ -1,11 +1,5 @@
 import { useGetCategories } from "../../hooks/categories/useGetCategories";
 import { AddCategory } from "./AddCategory";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Divider,
-} from "@nextui-org/react";
 import { CategoryItem } from "./CategoryItem";
 
 export function Categories() {
@@ -13,12 +7,11 @@ export function Categories() {
   const isEmpty = !categories.length && !loading && !error;
 
   return (
-    <Card className="max-w-[500]">
-      <CardHeader className="flex flex-col gap-3">
+    <div className="max-w-[500px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <h1 className="text-2xl">Categories</h1>
-      </CardHeader>
-      <Divider />
-      <CardBody>
+      </div>
+      <div className="p-4">
         <AddCategory />
         {isEmpty && (
           <p className="text-center my-5 text-zinc-400">No categories found</p>
@@ -28,7 +21,7 @@ export function Categories() {
             <CategoryItem key={c.id} name={c.name} id={c.id} />
           ))}
         </ul>
-      </CardBody>
-    </Card>
+      </div>
+    </div>
   );
 }

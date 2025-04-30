@@ -14,6 +14,7 @@ export type Book = {
   __typename?: string;
   id: string;
   title: string;
+  author?: string;
   categories?: Category[];
 };
 
@@ -43,8 +44,13 @@ export const toCategoryOptions = (categories: Category[]) =>
     // Parse the JSON parameters.
     try {
       return JSON.parse(params);
-    } catch (error) {
-      console.error(`Failed to parse parameters from storeFieldName: ${error.message}`);
+    } catch (error: unknown) { 
+      // Check if it's an Error object before accessing message
+      let message = 'Unknown error occurred during parsing';
+      if (error instanceof Error) {
+          message = error.message;
+      }
+      console.error(`Failed to parse parameters from storeFieldName: ${message}`);
       return null;
     }
   }
