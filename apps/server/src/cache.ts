@@ -3,7 +3,7 @@ import { Book, Category } from "./data";
 
 export const cache = new LRUCache<string, Book | Category>({
   maxSize: 100,
-  entryExpirationTimeInMS: 1000 * 60 * 10,
+  entryExpirationTimeInMS: 1000 * 60 * 60, // 1 hour cache duration
   onEntryEvicted: ({ key, value, isExpired }) => {
     console.log(JSON.stringify(value));
     console.log(`Entry evicted from the cache. Expired: ${isExpired}`);

@@ -5,29 +5,32 @@ import { CategoryChip } from '../components/Categories/CategoryChip';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import { Spinner, Alert } from '@heroui/react';
 
+// Back link component that will be reused across all states
+const BackLink = () => (
+  <Link 
+    to="/" 
+    className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors mb-6 group"
+  >
+    <ArrowLeftIcon className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
+    Back to Library
+  </Link>
+);
+
 export const BookDetailPage: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
 
   const { book, loading, error } = useGetBook(bookId || '');
 
-  if (!bookId) {
-      return <Alert variant="flat" color="warning" className="max-w-md mx-auto mt-8">No book ID provided.</Alert>;
-  }
+  const renderContent = () => {
+    if (!bookId) {
+      return <Alert variant="flat" color="warning" className="max-w-md mx-auto">No book ID provided.</Alert>;
+    }
 
-  if (loading) return <Spinner className="mx-auto mt-8" />;
-  if (error) return <Alert variant="solid" color="danger" className="max-w-md mx-auto mt-8">Error loading book: {error.message}</Alert>;
-  if (!book) return <Alert variant="flat" color="secondary" className="max-w-md mx-auto mt-8">Book not found.</Alert>;
+    if (loading) return <Spinner className="mx-auto" />;
+    if (error) return <Alert variant="solid" color="danger" className="max-w-md mx-auto">Error loading book: {error.message}</Alert>;
+    if (!book) return <Alert variant="flat" color="secondary" className="max-w-md mx-auto">Book not found.</Alert>;
 
-  return (
-    <div className="container mx-auto p-4 md:p-8 max-w-3xl">
-      <Link 
-        to="/" 
-        className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors mb-6 group"
-      >
-        <ArrowLeftIcon className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
-        Back to Library
-      </Link>
-
+    return (
       <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">{book.title}</h1>
         
@@ -44,6 +47,13 @@ export const BookDetailPage: React.FC = () => {
           )}
         </div>
       </div>
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4 md:p-8 max-w-3xl">
+      <BackLink />
+      {renderContent()}
     </div>
   );
 };
