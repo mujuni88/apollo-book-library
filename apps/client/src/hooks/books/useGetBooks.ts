@@ -3,7 +3,7 @@ import { Book, BookFilter, Category } from "../../lib/utils";
 import { toast } from "sonner";
 import { useMemo } from "react";
 
-const GET_BOOKS = gql`
+export const GET_BOOKS = gql`
   query getBooks($filter: BookFilter) {
     books(filter: $filter) {
       id
