@@ -54,3 +54,39 @@ bun build
 The output of each task is cached by Turborepo for faster subsequent runs.
 
 
+
+## Docker
+
+The repository includes a `Dockerfile` that builds an image serving both the GraphQL server and the compiled React client.
+
+### Build the image
+
+```bash
+docker build -t book-library .
+```
+
+### Run the container
+
+```bash
+docker run -p 3000:3000 -p 4000:4000 book-library
+```
+
+The server will be available on `http://localhost:4000` and the client on `http://localhost:3000`.
+
+### Dockerfile explained
+
+The Dockerfile uses a multi-stage build:
+
+1. **Build stage** (`node:18`)
+   - `COPY package*.json bun.lock turbo.json ./` – copy lock files and workspace config so dependencies can be installed.
+   - `COPY apps ./apps` and `COPY packages ./packages` – copy all application and package source code.
+   - `RUN npm install` – install dependencies for every workspace.
+   - `RUN npm run build` – run `turbo run build` to generate `apps/client/dist` and `apps/server/dist`.
+2. **Runtime stage** (`node:18-slim`)
+   - `COPY apps/server/package*.json ./server/` – include only the server's manifest to install its runtime dependencies.
+   - `RUN npm install --omit=dev --prefix ./server` – install production dependencies for the server.
+   - `COPY --from=builder /app/apps/server/dist ./server/dist` and `COPY --from=builder /app/apps/client/dist ./client/dist` – copy built output from the first stage.
+   - `RUN npm install -g serve` – install the small `serve` tool to host the static client build.
+   - `COPY start.sh .` – add a helper script that starts both processes.
+   - `EXPOSE 4000 3000` – document the ports used by the server and client.
+   - `CMD ["./start.sh"]` – run the start script when the container starts.
