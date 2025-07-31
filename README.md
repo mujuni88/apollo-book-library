@@ -1,58 +1,56 @@
 # Apollo Book Library
 
-This sample demonstrates a basic book library application using Apollo Client and Turborepo.
+A monorepo demonstrating a simple book library built with **Apollo** and **React**. The project is managed with **Turborepo** and uses **Bun** as the package manager.
 
-<img alt="My Library" src='./assets/app.png' /> 
+![Screenshot of the library](assets/app.png)
 
-
-## Table of Contents
-
-- [Apollo Book Library](#apollo-book-library)
-  - [Table of Contents](#table-of-contents)
-  - [Getting Started](#getting-started)
-  - [What's Inside?](#whats-inside)
-  - [Tech Stack](#tech-stack)
-  - [Build](#build)
-
-## Getting Started
-
-To use this example, follow these steps:
-
-1. Clone the repository
-2. Install the dependencies with `bun install`
-3. Start the development server with `bun dev`
-
-## What's Inside?
-
-This Turborepo includes the following packages/apps:
-
-- `app/client`: The UI for the library app lives here.
-- `app/server`: The Apollo server lives here.
-- `packages/eslint-config-custom`: Contains `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`).
-- `packages/tsconfig`: Contains `tsconfig.json`s used throughout the monorepo.
-
-
-## Tech Stack
-
-This app uses:
-
-- [React](https://reactjs.org/): UI
-- [Apollo Client](https://www.apollographql.com/docs/react/): Data management
-- [Tailwind CSS](https://tailwindcss.com/): Styling
-- [Headless UI](https://headlessui.com/): Unstyled UI components
-- [@heroui/react](https://heroui.io/): Base UI components
-- [React Router DOM](https://reactrouter.com/): Routing
-- [Apollo Server](https://www.apollographql.com/docs/apollo-server/): GraphQL server
-- [LRU Cache](https://www.npmjs.com/package/typescript-lru-cache): Caching
-
-All in [TypeScript](https://www.typescriptlang.org/).
-
-
-
-## Build
-
-To build all apps and packages, run the following command:
+## Repository structure
 
 ```
+apps/
+  client/  - React + Vite front‑end
+  server/  - Apollo GraphQL server
+  docs/    - Documentation site built with Next.js
+packages/
+  eslint-config-custom/ - shared ESLint rules
+  tailwind-config/      - shared Tailwind setup
+  tsconfig/             - shared TypeScript configs
+```
+
+## Getting started
+
+1. Install dependencies
+   ```bash
+   bun install
+   ```
+2. Start all apps in development mode
+   ```bash
+   bun dev
+   ```
+
+### Useful scripts
+
+- `bun build` – build every app and package
+- `bun lint`  – run ESLint across the workspace
+- `bun format` – format files with Prettier
+
+Each application can also be run individually using `bun run --filter=<app> <script>`.
+
+## Tech stack
+
+- **React**, **React Router**, **Tailwind CSS**, **Headless UI**, **Radix UI**
+- **Apollo Client** on the frontend and **Apollo Server** with an in-memory LRU cache on the backend
+- **Next.js** and **Nextra** for the documentation site
+- Entirely written in **TypeScript**
+
+## Building
+
+Create optimized builds for every package:
+
+```bash
 bun build
 ```
+
+The output of each task is cached by Turborepo for faster subsequent runs.
+
+
